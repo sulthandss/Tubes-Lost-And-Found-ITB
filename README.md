@@ -23,7 +23,7 @@ Aplikasi ini dirancang untuk mempermudah mahasiswa dalam melaporkan barang yang 
 
 ### 1. Dashboard Statistik
 Menampilkan ringkasan jumlah barang hilang vs ditemukan secara real-time.
-![Dashboard View](https://via.placeholder.com/800x400?text=Upload+Screenshot+Dashboard+Disini)
+![Dashboard View](https://github.com/sulthandss/Tubes-Lost-And-Found-ITB/blob/main/cari.png?raw=true)
 
 ### 2. Pencarian Pintar (Card View)
 Menggunakan sistem kartu (Card UI) dengan indikator warna:
