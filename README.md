@@ -19,7 +19,6 @@ Aplikasi ini dirancang untuk mempermudah mahasiswa dalam melaporkan barang yang 
 
 ## 📸 Tampilan Aplikasi (Screenshot)
 
-*(Note: Upload gambar screenshot kamu ke folder di github, lalu ganti link di bawah ini, atau hapus bagian ini jika belum sempat upload gambar)*
 
 ### 1. Dashboard Statistik
 Menampilkan ringkasan jumlah barang hilang vs ditemukan secara real-time.
