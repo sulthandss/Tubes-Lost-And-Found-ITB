@@ -10,3 +10,4 @@ COLOR_TEXT = "#333333"
 import os
 DATA_DIR = "data"
 DATA_FILE = os.path.join(DATA_DIR, "items.json")
+IMAGES_DIR = os.path.join(DATA_DIR, "images")

@@ -1,7 +1,9 @@
 # gui/pages.py
+import os
 import customtkinter as ctk
-from tkinter import messagebox
-from utils.file_handler import save_data, load_data, mark_as_done, delete_item
+from tkinter import messagebox, filedialog
+from PIL import Image
+from utils.file_handler import save_data, load_data, mark_as_done, delete_item, get_image_path
 
 # --- KARTU BARANG  ---
 class ItemCard(ctk.CTkFrame):
@@ -51,6 +53,19 @@ class ItemCard(ctk.CTkFrame):
         # Waktu
         waktu = item_data.get('waktu', '-')
         ctk.CTkLabel(self.info_frame, text=f"Diposting: {waktu}", font=("Arial", 10), text_color="#999").pack(anchor="w")
+
+        # --- GAMBAR (jika ada) ---
+        img_path = get_image_path(item_data.get('gambar'))
+        if img_path:
+            try:
+                pil_img = Image.open(img_path)
+                pil_img.thumbnail((80, 80))
+                ctk_img = ctk.CTkImage(light_image=pil_img, size=pil_img.size)
+                img_label = ctk.CTkLabel(self, image=ctk_img, text="")
+                img_label.image = ctk_img  # Simpan referensi agar tidak di-GC
+                img_label.pack(side="left", padx=(0, 10), pady=10)
+            except Exception:
+                pass
 
         # --- TOMBOL AKSI (KANAN) ---
         self.action_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -179,6 +194,20 @@ class LaporPage(ctk.CTkFrame):
         self.entry_kontak = ctk.CTkEntry(self.form_frame)
         self.entry_kontak.pack(pady=(5, 20), padx=40, fill="x")
 
+        # Upload Gambar
+        ctk.CTkLabel(self.form_frame, text="Foto Barang (Opsional)", text_color="#333", anchor="w").pack(padx=40, fill="x")
+        img_frame = ctk.CTkFrame(self.form_frame, fg_color="transparent")
+        img_frame.pack(padx=40, pady=(5, 15), fill="x")
+
+        self.lbl_img_name = ctk.CTkLabel(img_frame, text="Belum ada gambar", text_color="#999", anchor="w")
+        self.lbl_img_name.pack(side="left", expand=True, fill="x")
+
+        self.btn_upload_img = ctk.CTkButton(img_frame, text="📁 Pilih Gambar", width=130, command=self.pilih_gambar)
+        self.btn_upload_img.pack(side="right")
+
+        self.selected_image_path = None
+        self.img_preview_label = None
+
         # Radio Button (Pilihan Jenis)
         ctk.CTkLabel(self.form_frame, text="Apa Situasinya?", text_color="#333", anchor="w", font=("Arial", 12, "bold")).pack(padx=40, fill="x")
         
@@ -198,6 +227,29 @@ class LaporPage(ctk.CTkFrame):
         self.btn_submit = ctk.CTkButton(self.form_frame, text="Kirim Laporan", command=self.submit_data, height=45, font=("Arial", 14, "bold"))
         self.btn_submit.pack(pady=30, padx=40, fill="x")
 
+    def pilih_gambar(self):
+        path = filedialog.askopenfilename(
+            title="Pilih Foto Barang",
+            filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif *.bmp *.webp")]
+        )
+        if path:
+            self.selected_image_path = path
+            filename = os.path.basename(path)
+            self.lbl_img_name.configure(text=filename, text_color="#333")
+            # Tampilkan preview kecil
+            try:
+                pil_img = Image.open(path)
+                pil_img.thumbnail((100, 100))
+                ctk_img = ctk.CTkImage(light_image=pil_img, size=pil_img.size)
+                if self.img_preview_label is None:
+                    self.img_preview_label = ctk.CTkLabel(self.form_frame, image=ctk_img, text="")
+                    self.img_preview_label.pack(padx=40, pady=(0, 10))
+                else:
+                    self.img_preview_label.configure(image=ctk_img)
+                self.img_preview_label.image = ctk_img
+            except Exception:
+                pass
+
     def submit_data(self):
         nama = self.entry_nama.get()
         lokasi = self.entry_lokasi.get()
@@ -215,13 +267,18 @@ class LaporPage(ctk.CTkFrame):
             "status": "Open" # Default status selalu Open
         }
 
-        save_data(data_baru)
+        save_data(data_baru, self.selected_image_path)
         messagebox.showinfo("Berhasil", "Laporan tercatat! Cek menu 'Cari Barang'.")
         
         # Reset Form
         self.entry_nama.delete(0, 'end')
         self.entry_lokasi.delete(0, 'end')
         self.entry_kontak.delete(0, 'end')
+        self.selected_image_path = None
+        self.lbl_img_name.configure(text="Belum ada gambar", text_color="#999")
+        if self.img_preview_label:
+            self.img_preview_label.destroy()
+            self.img_preview_label = None
 
 
 # --- HALAMAN CARI ---
